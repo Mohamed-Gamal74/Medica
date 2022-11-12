@@ -16,6 +16,7 @@ const initialState = JSON.parse(localStorage.getItem("auth")) || {
   geneticDiseases: "",
   medications: "",
   surgeryBefore: "",
+  profileImg : ""
 };
 
 const authSlice = createSlice({
@@ -44,9 +45,11 @@ const authSlice = createSlice({
         action.payload.geneticDiseases || state.geneticDiseases;
       state.medications = action.payload.medications || state.medications;
       state.surgeryBefore = action.payload.surgeryBefore || state.surgeryBefore;
+      state.profileImg = action.payload.profileImg || state.profileImg
       localStorage.setItem("auth", JSON.stringify({ ...initialState }));
     },
     logout: (state) => {
+      localStorage.removeItem("auth");
       state.isAuth = false;
       state.id = "";
       state.userName = "";
@@ -62,12 +65,16 @@ const authSlice = createSlice({
       state.geneticDiseases = "";
       state.medications = "";
       state.surgeryBefore = "";
-      localStorage.setItem(
-        "auth",
-        JSON.stringify({
-          ...initialState,
-        })
-      );
+      state.profileImg = ""
+      console.log("logout");
+
+      // localStorage.setItem(
+      //   "auth",
+      //   JSON.stringify({
+      //     // ...initialState,
+      //     isAuth: false,
+      //   })
+      // );
     },
   },
 });

@@ -10,14 +10,20 @@ import { useSelector } from "react-redux";
 import { db } from "../../firebase/firebase";
 import useAuthStateHandler from "../../firebase/useAuthStateHandler";
 import { doc, updateDoc } from "firebase/firestore";
+
+import styles from './patient.module.css'
+
 const Patient = () => {
   const [componentSize, setComponentSize] = useState("default");
   const [save, setSaved] = useState("Save");
+
   const onFormLayoutChange = ({ size }) => {
     setComponentSize(size);
   };
+
   const refreshAuth = useAuthStateHandler;
   const id = useSelector((state) => state.auth.id);
+
   const handleSubmit = (values) => {
     const {
       weight,
@@ -27,10 +33,8 @@ const Patient = () => {
       geneticDiseases,
       medications,
       surgeryBefore,
-		} = values;
-		console.log(values);
+    } = values;
     const docRef = doc(db, "users", id);
-    console.log(docRef);
     updateDoc(docRef, {
       weight,
       height,
@@ -46,13 +50,15 @@ const Patient = () => {
   };
 
   return (
-    <div className=" container formBody  d-flex justify-content-center align-items-center">
-      <div className=" w-25">
-        <img className="w-100" src={strip}></img>
+
+    <div className={` d-flex justify-content-center align-items-center ${styles.contanier}`}>
+      <div className={`w-25 ${styles.img}`}>
+        <img className="w-100" alt="" src={strip}></img>
       </div>
       <Form
         onFinish={handleSubmit}
-        className=" mb-5 ms-5 mt-4    w-75 fw-bold shadow rounded-2 "
+        className= {`mb-5 ms-5 mt-4 p-3 w-100 fw-bold shadow rounded-2 ${styles.formBody}`}
+
         labelCol={{
           span: 4,
         }}
@@ -75,12 +81,8 @@ const Patient = () => {
             <Radio.Button value="large">Large</Radio.Button>
           </Radio.Group>
         </Form.Item>
-        {/* <Form.Item label="First name">
-          <Input />
-        </Form.Item>
-        <Form.Item label="Last name">
-          <Input />
-        </Form.Item> */}
+      
+        <div className=" ">
 
         <Form.Item label="Weight" name="weight">
           <TreeSelect
@@ -159,7 +161,10 @@ const Patient = () => {
         <Form.Item className="mb-5" label="Birthday" name="birthDay">
           <DatePicker />
         </Form.Item>
-        <div className=" ms-5 w-100 " n>
+
+        </div>
+        <div className="" >
+
           <h4 className="mb-3 fw-bold text-primary">
             Important Questions ...?{" "}
           </h4>
@@ -194,11 +199,24 @@ const Patient = () => {
           <PrimaryBtn title={save} />
         </Form.Item>
       </Form>
-      <ToastContainer />
-      <div className="w-25 position-relative ms-3">
+      <ToastContainer  position="bottom-right"
+        autoClose={1000}
+        limit={3}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored" />
+
+      <div className={`w-25 ${styles.img} position-relative ms-3`}>
         <img
           className="w-100 position-absolute bottom-0 start-50 translate-middle"
           src={capsula}
+          alt=""
+
         ></img>
       </div>
     </div>

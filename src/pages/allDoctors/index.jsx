@@ -99,27 +99,26 @@ const DoctorsPage = () => {
         />
       </div>
       <div className=" mx-auto row ">
-        {doctors.length
-          ? doctors.map((doctor) => {
-              return (
-                <motion.div
-                  {...animations}
-                  layout
-                  className="col-md-6"
-                  key={doctor.id}
-                >
-                  <Card
-                    img={doctor.pImage}
-                    title={doctor.name}
-                    rate={doctor.rate}
-                    position={doctor.position}
-                    experince={doctor.experience}
-                    specialty={doctor.specialty}
-                  />
-                </motion.div>
-              );
-            })
-          : <Skeleton active />}
+        {doctors.length ? (
+          doctors.map((doctor) => {
+            return (
+
+              <motion.div {...animations}  layout className="col-xl-6 col-md-12" key={doctor.id}>
+
+                <Card
+                  img={doctor.pImage}
+                  title={doctor.name}
+                  rate={doctor.rate}
+                  position={doctor.position}
+                  experince={doctor.experience}
+                  specialty={doctor.specialty}
+                />
+              </motion.div>
+            );
+          })
+        ) : (
+          <Skeleton active />
+        )}
       </div>
     </section>
   );
