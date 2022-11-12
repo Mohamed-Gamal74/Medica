@@ -20,6 +20,7 @@ const Card = ({ img, title, rate, position, experince, specialty }) => {
     >
       <div className="col-lg-6 "> 
 
+
         <div className={`${styles.imgContainer} mb-2 m-auto`}>
           <img src={img} alt={title} className=" rounded-4" />
         </div>
@@ -29,6 +30,7 @@ const Card = ({ img, title, rate, position, experince, specialty }) => {
           {specialty}
         </p>
       </div> 
+
 
 
       <div className="col-lg-6">
