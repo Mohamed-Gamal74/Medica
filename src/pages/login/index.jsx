@@ -13,7 +13,9 @@ import { useDispatch } from "react-redux";
 import { login } from "../../redux/authSlice";
 import useAuthStateHandler from "../../firebase/useAuthStateHandler";
 
-import styles from "./login.module.css";
+
+import styles from './login.module.css'
+
 
 const onChange = (e) => {
   console.log(`checked = ${e.target.checked}`);
@@ -37,6 +39,7 @@ const Login = () => {
   };
 
   return (
+
     <section className="container w-auto row m-auto align-items-center ">
       <div className={`col-md-7 ${styles.img}`}>
         <img src={loginnn} alt="login" className={`w-75`} />

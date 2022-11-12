@@ -14,8 +14,8 @@ const TopBar = () => {
   ];
 
   const isAuth = useSelector((state) => state.auth.isAuth);
-
   const profileImg = useSelector((state) => state.auth.profileImg)
+
 
   return (
     <section
@@ -27,20 +27,21 @@ const TopBar = () => {
         <Search className="mt-1 text-start  " />
         <div className="d-flex align-items-center ">
           <Dropdown
+            // onClick={(e) => e.stopPropagation()}
             className="me-2 "
             menu={{
               items,
             }}
             trigger={["click"]}
           >
-            <Link onClick={(e) => e.preventDefault()}>
+            <Link onClick={(e) => e.stopPropagation()}>
               <Space>
                 <IoMdNotificationsOutline className="fs-2 text-blue" />
               </Space>
             </Link>
           </Dropdown>
 
-          <Link to="/profile"  className="w-75" >
+          <Link to="/profile" className="w-75">
             <img
               src={profileImg ? profileImg : defaultImg}
               className={`${styles.img} img-fluid rounded-circle `}

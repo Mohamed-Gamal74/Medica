@@ -6,6 +6,7 @@
 }
 @media (max-width: 1200px) {
   .cardContainer {
+
     width: 400px;
   }
  
@@ -15,6 +16,7 @@
     height: 530px;
     max-width: 500px;
     display: block;
+
   }
  
 }
