@@ -9,7 +9,15 @@ import styles from "./appointment.module.css";
 import { useSelector } from "react-redux";
 import { db } from "../../firebase/firebase";
 import { doc, updateDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
+import { deSlugify, slugify, slugifyDoctor } from "../../utils/slugify";
+import Review from "../../components/review";
+import { toast, ToastContainer } from "react-toastify";
+
 const Appointment = () => {
+  const navigate = useNavigate();
+  const [showReview, setShowReview] = useState(false);
+
   const onChange = (key) => {
     console.log(key);
   };
@@ -17,6 +25,7 @@ const Appointment = () => {
   const auth = useSelector((state) => state.auth);
   const appointments = auth?.appointments || [];
   const canceledAppointments = auth?.canceled || [];
+  const completedAppointments = auth?.compeleted || [];
 
   const handleCancel = (index) => {
     return () => {
@@ -36,9 +45,57 @@ const Appointment = () => {
           auth?.canceled.length > 0
             ? [...auth?.canceled, appointment]
             : [appointment],
+      }).then(() => {
+        toast.info("Appointment Cancel");
       });
     };
   };
+
+  const navigateAppointPage = (title) => {
+    return () => {
+      navigate(`/appointment?doctor=${slugifyDoctor(title)}`);
+    };
+  };
+  const reschedule = (title, id, index, date, time) => {
+    return () => {
+      navigate(
+        `/appointment?doctor=${slugifyDoctor(
+          title
+        )}?id=${id}&index=${index}&date=${date}&time=${time}`
+      );
+    };
+  };
+  const compeleteHandler = (index) => {
+    return () => {
+      if (appointments) {
+        console.log("compeleteHandler", index);
+        const appointment = appointments[index];
+        console.log(appointment);
+        const docName = doctors.filter(
+          (doctor) => doctor.id === appointment?.doctorId
+        )[0]?.name;
+
+        const docRef = doc(db, "users", auth?.id);
+        const newAppointments = appointments.filter(
+          (appointment, i) => i !== index
+        );
+
+        console.log("newAppointments", newAppointments);
+        updateDoc(docRef, {
+          appointments: newAppointments,
+        });
+        updateDoc(docRef, {
+          compeleted:
+            auth?.compeleted?.length > 0
+              ? [...auth?.compeleted, appointment]
+              : [appointment],
+        }).then(() => {
+          toast.info(`Appointment with ${docName} completed`);
+        });
+      }
+    };
+  };
+
   return (
     <>
       <section className="container">
@@ -108,7 +165,9 @@ const Appointment = () => {
                               at {item.date} {item.time}
                             </p>
                           </div>
-                          <div className={`${styles.icon}d-flex align-items-center`}>
+                          <div
+                            className={`${styles.icon}d-flex align-items-center`}
+                          >
                             <a href="tel:1968">
                               <TbPhoneCall className="fs-1 text-primary shadow p-1 rounded-5 ms-lg-3 mb-3" />
                             </a>
@@ -126,7 +185,21 @@ const Appointment = () => {
                             title="Cancel Appointment"
                             action={handleCancel(i)}
                           />
-                          <PrimaryBtn title="Reschedule" />
+                          <PrimaryBtn
+                            title="Mark as Compeleted"
+                            action={compeleteHandler(i)}
+                          />
+                          {/* <PrimaryBtn
+                            title="Reschedule"
+                            action={reschedule(
+                              doctors.find((doc) => doc?.id === item?.doctorId)
+                                ?.name,
+                              item?.doctorId,
+                              i,
+                              item.date,
+                              item.time
+                            )}
+                          /> */}
                         </div>
                       </div>
                     </div>
@@ -137,48 +210,78 @@ const Appointment = () => {
           </Tabs.TabPane>
 
           <Tabs.TabPane tab="Completed" key="Completed" className="text-center">
-            <div className="d-none">
-              <div className="m-3">
-                <img src={empty} alt="no dates" className="w-25 " />
+            {completedAppointments?.length === 0 ? (
+              <div>
+                <div className="m-3">
+                  <img src={empty} alt="no dates" className="w-25 " />
+                </div>
+                <h4>You don't have an appointment completed yet</h4>
               </div>
-              <h4>You don't have an appointment completed yet</h4>
-            </div>
-            <div className="d-block">
-              <div className="row gap-5">
-                <div className=" col-lg-8 col-md-12 m-auto text-center">
-                  <div className="row shadow rounded-3 py-4 ">
-                    <div className="col-md-4 mb-2">
-                      <img
-                        src="https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png"
-                        alt="doctor-img"
-                        className={`rounded-5 ${styles.img}`}
-                      />
-                    </div>
-                    <div className="col-md-6 ms-auto mt-3 d-lg-flex  ">
-                      <div>
-                        <h2>Doctor Name</h2>
-                        <button className="btn btn-success bg-transparent text-success">
-                          Completed
-                        </button>
-                        <p>Date</p>
+            ) : (
+              completedAppointments.map((item, i) => (
+                <div>
+                  <div className="row">
+                    <div className=" col-lg-8 col-md-12 m-auto text-center">
+                      <div className="row shadow rounded-3 py-4 ">
+                        <div className="col-md-4 mb-2">
+                          <img
+                            src={
+                              doctors.find((doc) => doc?.id === item?.doctorId)
+                                ?.pImage
+                            }
+                            alt="doctor-img"
+                            className={`rounded-5 ${styles.img}`}
+                          />
+                        </div>
+                        <div className="col-md-7 ms-auto mt-3 d-lg-flex  ">
+                          <div>
+                            <h2>
+                              {
+                                doctors.find(
+                                  (doc) => doc?.id === item?.doctorId
+                                )?.name
+                              }
+                            </h2>
+                            <button className="btn btn-success bg-transparent text-success">
+                              Completed
+                            </button>
+                            <p>{item.date}</p>
+                          </div>
+                          <div>
+                            <TbPhoneCall className="fs-1 text-primary shadow p-1 rounded-5 ms-lg-3 mb-3" />
+                          </div>
+                        </div>
+                        <div className="border-top pt-2">
+                          <SecondaryBtn
+                            title="Book Again"
+                            action={navigateAppointPage(
+                              doctors.find((doc) => doc?.id === item?.doctorId)
+                                ?.name
+                            )}
+                          />
+                          <PrimaryBtn
+                            title="Leave a review"
+                            action={() => {
+                              setShowReview(!showReview);
+                            }}
+                          />
+                        </div>
+                        {showReview && (
+                          <div>
+                            <Review />
+                          </div>
+                        )}
                       </div>
-                      <div>
-                        <TbPhoneCall className="fs-1 text-primary shadow p-1 rounded-5 ms-lg-3 mb-3" />
-                      </div>
-                    </div>
-                    <div className="border-top pt-2">
-                      <SecondaryBtn title="Book Again" />
-                      <PrimaryBtn title="Leave a review" />
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              ))
+            )}
           </Tabs.TabPane>
 
           <Tabs.TabPane tab="Cancelled" key="tab3" className="text-center">
             {canceledAppointments?.length === 0 ? (
-              <div className="d-none">
+              <div>
                 <div className="m-3">
                   <img src={empty} alt="no dates" className="w-25 " />
                 </div>
@@ -186,19 +289,21 @@ const Appointment = () => {
               </div>
             ) : (
               canceledAppointments.map((item, i) => (
-                <div className="d-block">
+                <div className="mb-5" key={item.date + i}>
                   <div className="row m-auto">
-                  <div className=" col-lg-7 col-md-12 text-center m-auto">
+                    <div className=" col-lg-7 col-md-12 text-center m-auto">
                       <div className="row shadow rounded-3 py-4 ">
                         <div className="col-md-4 mb-2">
                           <img
-                            src={doctors.find((doc) => doc?.id === item?.doctorId)?.pImage}
+                            src={
+                              doctors.find((doc) => doc?.id === item?.doctorId)
+                                ?.pImage
+                            }
                             alt="doctor-img"
                             className={`rounded-5 ${styles.img}`}
                           />
                         </div>
-
-                        <div className="col-md-8 mt-3 d-lg-flex text-center ">
+                        <div className="col-md-8 mt-3 d-lg-flex text-center">
                           <div>
                             <h2>
                               {
@@ -210,7 +315,7 @@ const Appointment = () => {
                             <button className="btn btn-danger bg-transparent text-danger">
                               Cancelled
                             </button>
-                            <p>{item.date}</p>
+                            <p className="mt-2">{item.date}</p>
                           </div>
                           <div>
                             <TbPhoneCall className="fs-1 text-primary shadow p-1 rounded-5 ms-lg-3 mb-3" />
@@ -224,6 +329,19 @@ const Appointment = () => {
             )}
           </Tabs.TabPane>
         </Tabs>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={1000}
+          limit={3}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+        />
       </section>
     </>
   );
