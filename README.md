@@ -3,19 +3,19 @@ booking doctor's appointments webiste.
 
 live demo : https://medicaa.netlify.app/
 
-# pages 
+# Pages 
 
-- welcome 
-- register 
-- login 
-- home 
-- user profile 
-- doctor profile 
-- all doctors 
-- appointments
-- articles 
-- new doctor 
-- about us
+- Welcome 
+- Register 
+- Login 
+- Home 
+- User Profile 
+- Doctor Profile 
+- All Doctors 
+- Appointments
+- Articles 
+- New Doctor 
+- About Us
 
 # Technologies
 
